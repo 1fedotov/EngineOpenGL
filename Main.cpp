@@ -14,12 +14,12 @@
 // Array of vertices coordinates, 3 vertices
 GLfloat vertices[] =
 {
-	-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower left corner
-	0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,  // Lower right corner
-	0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f, // Upper center corner
-	-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0, // Inner left
-	0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0, // Inner right
-	0.0f, -0.5f * float(sqrt(3)) / 3, 0.0 // Inner down
+	-0.5f, -0.5f * float(sqrt(3)) / 3,     0.0f,  0.8f, 0.3f,  0.02f, // Lower left corner
+	 0.5f, -0.5f * float(sqrt(3)) / 3,     0.0f,  0.8f, 0.3f,  0.02f, // Lower right corner
+	 0.0f,  0.5f * float(sqrt(3)) * 2 / 3, 0.0f,  1.0f, 1.0f,  1.0f, // Upper center corner
+	-0.25f, 0.5f * float(sqrt(3)) / 6,	   0.0f,  0.9f, 0.6f,  0.4f, // Inner left
+	 0.25f, 0.5f * float(sqrt(3)) / 6,	   0.0f,  0.9f, 0.6f,  0.4f, // Inner right
+	 0.0f, -0.5f * float(sqrt(3)) / 3,	   0.0f,  0.8f, 0.3f,  0.02f, // Inner down
 };
 
 GLuint indices[] =
@@ -79,7 +79,8 @@ int main()
 	VBO VBO1(vertices, sizeof(vertices));
 	EBO EBO1(indices, sizeof(indices));
 
-	VAO1.LinkVBO(VBO1, 0);
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	VAO1.Unbind();
 	VBO1.Unbind();
 	EBO1.Unbind();
