@@ -8,17 +8,18 @@
 #include"VAO.h"
 #include"VBO.h"
 #include"EBO.h"
+#include"Texture.h"
 
 #define WINDOW_HEIGHT 800
 #define WINDOW_WIDTH 800
 
 // Array of vertices coordinates, 3 vertices
 GLfloat vertices[] =
-{
-	-0.5f, -0.5f,  0.0f,  1.0f, 0.0f,  0.0f, // Lower left corner
-	-0.5f,  0.5f,  0.0f,  0.0f, 1.0f,  0.0f, // Upper left corner
-	 0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  1.0f, // Upper right corner
-	 0.5f, -0.5f,  0.0f,  1.0f, 1.0f,  1.0f, // Lower right corner
+{ //     COORDINATES			COLORS		   TEXTURES
+	-0.5f, -0.5f,  0.0f,  1.0f, 0.0f,  0.0f,  0.0f, 0.0f, // Lower left corner
+	-0.5f,  0.5f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f, // Upper left corner
+	 0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  1.0f,  1.0f, 1.0f, // Upper right corner
+	 0.5f, -0.5f,  0.0f,  1.0f, 1.0f,  1.0f,  1.0f, 0.0f // Lower right corner
 };
 
 GLuint indices[] =
@@ -77,9 +78,10 @@ int main()
 	VBO VBO1(vertices, sizeof(vertices));
 	EBO EBO1(indices, sizeof(indices));
 
-	// Links VBO attributes such as coordinates and colors to VAO
-	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	// Links VBO attributes such as coordinates, colors and texture coords to VAO
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0); // coordinates
+	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float))); // colors
+	VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float))); // texture coords
 	// Unbind all to prevent accidentally modifying them
 	VAO1.Unbind();
 	VBO1.Unbind();
@@ -87,6 +89,11 @@ int main()
 
 	// Gets ID of uniform called "scale"
 	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
+
+	// Handle TEXTURES
+	
+	Texture bird("Icon_Bird_512x512.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	bird.texUnit(shaderProgram, "tex0", 0);
 
 	// Reading the timer
 	double time = glfwGetTime();
@@ -106,8 +113,10 @@ int main()
 
 		// Specify for OpenGL which shader program to use
 		shaderProgram.Activate();
+
 		// Assigns a value to the uniform; MUST always be done after shader activation
 		glUniform1f(uniID, 0.5f);
+		bird.Bind();
 
 		// Bind the VAO so OpenGL could use it
 		VAO1.Bind();
@@ -126,6 +135,7 @@ int main()
 	VAO1.Delete();
 	VBO1.Delete();
 	EBO1.Delete();
+	bird.Delete();
 	shaderProgram.Delete();
 
 	// Delete window before exiting program

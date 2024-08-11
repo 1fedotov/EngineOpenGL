@@ -1,10 +1,18 @@
 #version 330 core
+
+// Outputs colors in RGBA
 out vec4 FragColor;
 
-// Inputs the color from Vertex Shader
+// Imports the color from Vertex Shader
 in vec3 color;
+
+// Imports the texture coord from the Vertex Shader
+in vec2 texCoord;
+
+// Uniform will tell OpenGL which texture unit to use
+uniform sampler2D tex0;
 
 void main()
 {
-	FragColor = vec4(color, 1.0f);
+	FragColor = texture(tex0, texCoord);
 }
