@@ -79,11 +79,16 @@ int main()
 	VBO VBO1(vertices, sizeof(vertices));
 	EBO EBO1(indices, sizeof(indices));
 
+	// Links VBO attributes such as coordinates and colors to VAO
 	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
 	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	// Unbind all to prevent accidentally modifying them
 	VAO1.Unbind();
 	VBO1.Unbind();
 	EBO1.Unbind();
+
+	// Gets ID of uniform called "scale"
+	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
 
 	// Reading the timer
 	double time = glfwGetTime();
@@ -103,6 +108,8 @@ int main()
 
 		// Specify for OpenGL which shader program to use
 		shaderProgram.Activate();
+		// Assigns a value to the uniform; MUST always be done after shader activation
+		glUniform1f(uniID, 0.5f);
 
 		// Bind the VAO so OpenGL could use it
 		VAO1.Bind();
