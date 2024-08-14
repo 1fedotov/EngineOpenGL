@@ -11,8 +11,9 @@ Texture::Texture(const char* image_path, GLenum texType, GLenum slot, GLenum for
 	// Generates a texture object name and returns it inside the ID
 	glGenTextures(1, &ID);
 
-	// Activate the texture slot and assings the texture to the Texture unit
+	// Selects which texture unit will be affected by subsequent texture state calls
 	glActiveTexture(slot);
+	// Let us create and use a named texture. Texture targets become aliases for the textures currently bound to them
 	glBindTexture(texType, ID);
 
 	// Configures the type of the algorithm which is used to make image smaller or bigger
