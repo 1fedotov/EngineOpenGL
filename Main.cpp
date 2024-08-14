@@ -34,6 +34,14 @@ void error_callback(int error, const char* description)
 	fprintf(stderr, "Error: %s\n", description);
 }
 
+void ProcessInput(GLFWwindow* window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	{
+		glfwSetWindowShouldClose(window, true);
+	}
+}
+
 int main()
 {
 	// Setting an error callback
@@ -102,30 +110,31 @@ int main()
 	// was called before swapping the buffers and returning
 	glfwSwapInterval(1);
 
-	// Main while loop
+	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
+		// Process Input
+		ProcessInput(window);
+
+		//////////////////////////////////////
+		//Process Frame
+		/////////////////////////////////////
 		// Set a color
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-
 		// Fill the back buffer with the color 
 		glClear(GL_COLOR_BUFFER_BIT);
-
 		// Specify for OpenGL which shader program to use
 		shaderProgram.Activate();
-
 		// Assigns a value to the uniform; MUST always be done after shader activation
 		glUniform1f(uniID, 0.5f);
 		bird.Bind();
-
 		// Bind the VAO so OpenGL could use it
 		VAO1.Bind();
-
 		// Draw the triangle using GL_TRIANGLES primitives
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
 		// Swap front buffer with back buffer
 		glfwSwapBuffers(window);
+		//////////////////////////////////////
 
 		// Processing GLFW events
 		glfwPollEvents();
