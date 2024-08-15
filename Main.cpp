@@ -3,6 +3,8 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<stb/stb_image.h>
+#include<glm/gtc/matrix_transform.hpp>
+#include<glm/gtc/type_ptr.hpp>
 
 #include"Shader.h"
 #include"VAO.h"
@@ -15,17 +17,22 @@
 
 // Array of vertices coordinates, 3 vertices
 GLfloat vertices[] =
-{ //     COORDINATES			COLORS		   TEXTURES
-	-0.5f, -0.5f,  0.0f,  1.0f, 0.0f,  0.0f,  0.0f, 0.0f, // Lower left corner
-	-0.5f,  0.5f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f, // Upper left corner
-	 0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  1.0f,  1.0f, 1.0f, // Upper right corner
-	 0.5f, -0.5f,  0.0f,  1.0f, 1.0f,  1.0f,  1.0f, 0.0f // Lower right corner
+{ //     COORDINATES			COLORS		      TEXTURES
+	-0.5f,  0.0f,  0.5f,  0.83f, 0.70f,  0.44f,  0.0f, 0.0f,
+	-0.5f,  0.0f, -0.5f,  0.83f, 0.70f,  0.44f,  5.0f, 1.0f,
+	 0.5f,  0.0f, -0.5f,  0.83f, 0.70f,  0.44f,  0.0f, 0.0f,
+	 0.5f,  0.0f,  0.5f,  0.83f, 0.70f,  0.44f,  5.0f, 0.0f, 
+	 0.0f,  0.8f,  0.0f,  0.92f, 0.86f,  0.76f,  2.5f, 5.0f 
 };
 
 GLuint indices[] =
 {
-	0, 2, 1, // Upper triangle
-	0, 3, 2 // Lower triangle
+	0, 2, 1, 
+	0, 2, 3,
+	0, 1, 4,
+	1, 2, 4,
+	2, 3, 4,
+	3, 0, 4
 };
 
 // Error callback for OpenGL
@@ -100,15 +107,19 @@ int main()
 
 	// Handle TEXTURES
 	
-	Texture bird("Icon_Bird_512x512.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	bird.texUnit(shaderProgram, "tex0", 0);
+	Texture marble("seamless_brick-512x512.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	marble.texUnit(shaderProgram, "tex0", 0);
 
+
+	float rotation = 0.0f;
 	// Reading the timer
 	double time = glfwGetTime();
-
+	
 	// Number of screen updates to wait from the time glfwSwapBuffers 
 	// was called before swapping the buffers and returning
 	glfwSwapInterval(1);
+
+	glEnable(GL_DEPTH_TEST);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
@@ -122,16 +133,36 @@ int main()
 		// Set a color
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Fill the back buffer with the color 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Specify for OpenGL which shader program to use
 		shaderProgram.Activate();
+
+		rotation += 0.5f;
+
+		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 proj = glm::mat4(1.0f);
+
+		model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+		view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));
+		proj = glm::perspective(glm::radians(45.0f), (float)(WINDOW_WIDTH / WINDOW_HEIGHT), 0.1f, 100.0f);
+
+		int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+		int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
 		// Assigns a value to the uniform; MUST always be done after shader activation
 		glUniform1f(uniID, 0.5f);
-		bird.Bind();
+		marble.Bind();
 		// Bind the VAO so OpenGL could use it
 		VAO1.Bind();
 		// Draw the triangle using GL_TRIANGLES primitives
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
 		// Swap front buffer with back buffer
 		glfwSwapBuffers(window);
 		//////////////////////////////////////
@@ -144,7 +175,7 @@ int main()
 	VAO1.Delete();
 	VBO1.Delete();
 	EBO1.Delete();
-	bird.Delete();
+	marble.Delete();
 	shaderProgram.Delete();
 
 	// Delete window before exiting program

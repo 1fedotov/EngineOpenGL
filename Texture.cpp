@@ -32,7 +32,7 @@ Texture::Texture(const char* image_path, GLenum texType, GLenum slot, GLenum for
 	glBindTexture(texType, 0);
 }
 
-void Texture::texUnit(Shader shader, const char* uniform, GLuint unit)
+void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
 {
 	// Gets ID of uniform called "texCoord"
 	GLuint tex0Uni = glGetUniformLocation(shader.ID, uniform);
